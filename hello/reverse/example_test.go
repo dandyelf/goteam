@@ -12,5 +12,9 @@ import (
 
 func ExampleString() {
 	fmt.Println(reverse.String("hello"))
+	fmt.Println(reverse.String("world"))
+	fmt.Println(reverse.String("!"))
 	// Output: olleh
+	// dlrow
+	// !
 }
