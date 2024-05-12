@@ -11,6 +11,6 @@ func main() {
 
 func Hallo() error {
 	var err error
-	fmt.Println("Hallo world?")
+	fmt.Println("Hallo world!")
 	return err
 }
