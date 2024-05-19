@@ -1,0 +1,16 @@
+syntax = "proto3";
+option go_package = "./proc";
+import "google/protobuf/timestamp.proto";
+
+// Определение сервиса.
+service Serv {
+  // определение метода с использованием rpc.
+  rpc GetData() returns (Point) {}
+
+}
+
+message Point {
+  string session_id = 1;
+  double frequency = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
