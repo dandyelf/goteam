@@ -3,9 +3,9 @@ option go_package = "./proc";
 import "google/protobuf/timestamp.proto";
 
 // Определение сервиса.
-service Serv {
+service RepServ {
   // определение метода с использованием rpc.
-  rpc GetData() returns (Point) {}
+  rpc GetData(Point) returns (Point) {}
 
 }
 
