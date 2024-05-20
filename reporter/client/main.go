@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	pro "reporter/prot"
 
@@ -11,17 +12,26 @@ import (
 )
 
 func main() {
-	serverAddr := "localhost:3333"
-	conn, err := grpc.NewClient(serverAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(":3333", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	defer conn.Close()
 	cli := pro.NewRepServClient(conn)
-	var p pro.Point
-	data, err := cli.GetData(context.Background(), &p)
+
+	data, err := cli.GetData(context.Background(), nil)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(data.SessionId, data.Frequency, data.Timestamp)
+	for {
+		g, err := data.Recv()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			log.Println(err)
+		}
+
+		fmt.Println(g)
+	}
 }

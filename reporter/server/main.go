@@ -18,18 +18,7 @@ type reportServer struct {
 	pro.UnimplementedRepServServer
 }
 
-func main() {
-	lis, err := net.Listen("tcp", ":3333")
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	grpcServer := grpc.NewServer()
-	pro.RegisterRepServServer(grpcServer, reportServer{})
-	fmt.Println("Server start")
-	grpcServer.Serve(lis)
-}
-
-func (reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServer) error {
+func (s reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServer) error {
 	uuidStr := uuid.NewString()
 	frequency := Frequency()
 	timestamp := timestamppb.New(time.Now())
@@ -46,12 +35,23 @@ func (reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServer
 	return nil
 }
 
-func Frequency() float64 {
+func main() {
+	lis, err := net.Listen("tcp", ":3333")
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	grpcServer := grpc.NewServer()
+	pro.RegisterRepServServer(grpcServer, reportServer{})
+	fmt.Println("Server start")
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatal(err)
+	}
+}
 
+func Frequency() float64 {
 	const (
 		minMean = -10
 		maxMean = 10
-
 		stdLow  = 0.3
 		stdHigh = 1.5
 	)
