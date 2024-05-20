@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
-	pro "reporter/proc"
+	pro "reporter/prot"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -17,7 +17,7 @@ func main() {
 		log.Fatalf("fail to dial: %v", err)
 	}
 	defer conn.Close()
-	cli := pro.NewServClient(conn)
+	cli := pro.NewRepServClient(conn)
 	var p pro.Point
 	data, err := cli.GetData(context.Background(), &p)
 	if err != nil {

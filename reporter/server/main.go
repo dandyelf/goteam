@@ -6,7 +6,7 @@ import (
 	"log"
 	"math/rand"
 	"net"
-	pro "reporter/proc"
+	pro "reporter/prot"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +15,7 @@ import (
 )
 
 type reportServer struct {
-	pro.UnimplementedServServer
+	pro.UnimplementedRepServServer
 }
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	pro.RegisterServServer(grpcServer, reportServer{})
+	pro.RegisterRepServServer(grpcServer, reportServer{})
 	fmt.Println("Server start")
 	grpcServer.Serve(lis)
 }
