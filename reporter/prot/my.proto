@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "./proc";
+option go_package = "./prot";
 import "google/protobuf/timestamp.proto";
 
 // Определение сервиса.
