@@ -8,6 +8,7 @@ package prot
 
 import (
 	context "context"
+	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -23,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RepServClient interface {
 	// определение метода с использованием rpc.
-	GetData(ctx context.Context, in *Point, opts ...grpc.CallOption) (*Point, error)
+	GetData(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (RepServ_GetDataClient, error)
 }
 
 type repServClient struct {
@@ -34,13 +35,36 @@ func NewRepServClient(cc grpc.ClientConnInterface) RepServClient {
 	return &repServClient{cc}
 }
 
-func (c *repServClient) GetData(ctx context.Context, in *Point, opts ...grpc.CallOption) (*Point, error) {
-	out := new(Point)
-	err := c.cc.Invoke(ctx, "/RepServ/GetData", in, out, opts...)
+func (c *repServClient) GetData(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (RepServ_GetDataClient, error) {
+	stream, err := c.cc.NewStream(ctx, &RepServ_ServiceDesc.Streams[0], "/RepServ/GetData", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &repServGetDataClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type RepServ_GetDataClient interface {
+	Recv() (*Point, error)
+	grpc.ClientStream
+}
+
+type repServGetDataClient struct {
+	grpc.ClientStream
+}
+
+func (x *repServGetDataClient) Recv() (*Point, error) {
+	m := new(Point)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // RepServServer is the server API for RepServ service.
@@ -48,7 +72,7 @@ func (c *repServClient) GetData(ctx context.Context, in *Point, opts ...grpc.Cal
 // for forward compatibility
 type RepServServer interface {
 	// определение метода с использованием rpc.
-	GetData(context.Context, *Point) (*Point, error)
+	GetData(*empty.Empty, RepServ_GetDataServer) error
 	mustEmbedUnimplementedRepServServer()
 }
 
@@ -56,8 +80,8 @@ type RepServServer interface {
 type UnimplementedRepServServer struct {
 }
 
-func (UnimplementedRepServServer) GetData(context.Context, *Point) (*Point, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetData not implemented")
+func (UnimplementedRepServServer) GetData(*empty.Empty, RepServ_GetDataServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetData not implemented")
 }
 func (UnimplementedRepServServer) mustEmbedUnimplementedRepServServer() {}
 
@@ -72,22 +96,25 @@ func RegisterRepServServer(s grpc.ServiceRegistrar, srv RepServServer) {
 	s.RegisterService(&RepServ_ServiceDesc, srv)
 }
 
-func _RepServ_GetData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Point)
-	if err := dec(in); err != nil {
-		return nil, err
+func _RepServ_GetData_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(empty.Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(RepServServer).GetData(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/RepServ/GetData",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RepServServer).GetData(ctx, req.(*Point))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(RepServServer).GetData(m, &repServGetDataServer{stream})
+}
+
+type RepServ_GetDataServer interface {
+	Send(*Point) error
+	grpc.ServerStream
+}
+
+type repServGetDataServer struct {
+	grpc.ServerStream
+}
+
+func (x *repServGetDataServer) Send(m *Point) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // RepServ_ServiceDesc is the grpc.ServiceDesc for RepServ service.
@@ -96,12 +123,13 @@ func _RepServ_GetData_Handler(srv interface{}, ctx context.Context, dec func(int
 var RepServ_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "RepServ",
 	HandlerType: (*RepServServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "GetData",
-			Handler:    _RepServ_GetData_Handler,
+			StreamName:    "GetData",
+			Handler:       _RepServ_GetData_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "my.proto",
 }

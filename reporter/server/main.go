@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"math/rand"
@@ -9,6 +8,7 @@ import (
 	pro "reporter/prot"
 	"time"
 
+	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -29,30 +29,35 @@ func main() {
 	grpcServer.Serve(lis)
 }
 
-func (reportServer) GetData(context.Context, *pro.Point) (*pro.Point, error) {
+func (reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServer) error {
 	uuidStr := uuid.NewString()
 	frequency := Frequency()
-	var timestamp timestamppb.Timestamp
+	timestamp := timestamppb.New(time.Now())
 	log.Println(uuidStr, frequency, timestamp.String())
 
-	return &pro.Point{
+	response := pro.Point{
 		SessionId: uuidStr,
 		Frequency: frequency,
-		Timestamp: &timestamp,
-	}, nil
-
+		Timestamp: timestamp,
+	}
+	if err := stream.Send(&response); err != nil {
+		return err
+	}
+	return nil
 }
 
-// func newServer() (s *reportServer) {
-
-// 	return
-// }
-
 func Frequency() float64 {
-	rand.Seed(time.Now().UnixNano())
 
-	mean := rand.Float64()*20 - 10     // Random mean between -10 and 10
-	stdDev := rand.Float64()*1.2 + 0.3 // Random standard deviation between 0.3 and 1.5
+	const (
+		minMean = -10
+		maxMean = 10
+
+		stdLow  = 0.3
+		stdHigh = 1.5
+	)
+
+	mean := rand.Float64()*(maxMean-minMean) + minMean // Random mean between -10 and 10
+	stdDev := rand.Float64()*(stdHigh-stdLow) + stdLow // Random standard deviation between 0.3 and 1.5
 
 	return rand.NormFloat64()*stdDev + mean
 }

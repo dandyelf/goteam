@@ -1,11 +1,13 @@
 syntax = "proto3";
 option go_package = "./prot";
+
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
 // Определение сервиса.
 service RepServ {
   // определение метода с использованием rpc.
-  rpc GetData(Point) returns (Point) {}
+  rpc GetData(google.protobuf.Empty) returns (stream Point) {}
 
 }
 
