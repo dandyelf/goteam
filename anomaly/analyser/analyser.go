@@ -1,7 +1,6 @@
 package analyser
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -18,8 +17,5 @@ func AnomalyAnalyser(distribution []float64) (mean float64, stdDev float64, err 
 		variance += math.Pow(value-mean, 2)
 	}
 	stdDev = math.Sqrt(variance / float64(len(distribution)))
-
-	fmt.Printf("Mean: %f\n", mean)
-	fmt.Printf("StdDev: %f\n", stdDev)
 	return
 }
