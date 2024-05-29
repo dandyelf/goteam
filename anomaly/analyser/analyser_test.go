@@ -3,22 +3,11 @@ package analyser_test
 import (
 	an "anomaly/analyser"
 	"fmt"
-	"math/rand"
-	"testing"
 )
 
-func TestAnomalyAnalyser(t *testing.T) {
-	for _, c := range []struct {
-		in []float64
-		want []float64
-	}{
-		{[1, 12, 5], {1.2, 12, }},
-		{"Hello, 世界", "界世 ,olleH"},
-		{"", ""},
-	} {
-		got := an.AnomalyAnalyser(c.in)
-		if got != c.want {
-			t.Errorf("String(%q) == %q, want %q", c.in, got, c.want)
-		}
-	}
+func ExampleAnomalyAnalyser() {
+	fmt.Println(an.AnomalyAnalyser([]float64{1, 12, 5, 23, 34, 35453, 345, 345, 34, 2}))
+	// Output: Mean: 3625.400000
+	// StdDev: 10610.000106
+	// 3625.4 10610.000105560792 <nil>
 }
