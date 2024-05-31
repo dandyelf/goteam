@@ -5,13 +5,13 @@ import (
 )
 
 func AnomalyAnalyser(distribution []float64) (mean float64, stdDev float64, err error) {
-	// Вычисление среднего значения
+	// mean
 	sum := 0.0
 	for _, value := range distribution {
 		sum += value
 	}
 	mean = sum / float64(len(distribution))
-	// Вычисление стандартного отклонения
+	// stdDev
 	variance := 0.0
 	for _, value := range distribution {
 		variance += math.Pow(value-mean, 2)
