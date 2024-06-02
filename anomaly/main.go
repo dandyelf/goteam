@@ -11,18 +11,18 @@ import (
 )
 
 var (
-	AnomalyCoefficient float64
-	Distribution       []float64
-	Mean, STDdev       float64
+	StdAnomalyCoefficient float64
+	Distribution          []float64
+	Mean, STDdev          float64
 )
 
 func init() {
-	flag.Float64Var(&AnomalyCoefficient, "k", 0.0, "STD Anomaly coefficient")
+	flag.Float64Var(&StdAnomalyCoefficient, "k", 0.20, "STD Anomaly coefficient")
 	flag.Parse()
 }
 
 func main() {
-	fmt.Println("STD Anomaly coefficient: ", AnomalyCoefficient)
+	fmt.Println("STD Anomaly coefficient: ", StdAnomalyCoefficient)
 	scanner := bufio.NewScanner(bufio.NewReader(os.Stdin))
 	for scanner.Scan() {
 		value, err := strconv.ParseFloat(scanner.Text(), 64)
@@ -30,33 +30,13 @@ func main() {
 			fmt.Println("Error parsing input:", err)
 			continue
 		}
-		Distribution = append(Distribution, value)
-		Mean, STDdev, err = an.MeanStdDevCalc(Distribution)
-		if err != nil {
-			fmt.Println("Error calculating mean and STDdev:", err)
-			continue
-		}
-		// Вычисляем скользящее mean и STDdev
-		if len(Distribution)%6 == 0 {
-			fmt.Println(len(Distribution), "value: ", value)
-			fmt.Println("Mean: ", Mean, "STDdev: ", STDdev)
-		}
-		if len(Distribution)%6 == 100 {
-			break
-		}
-		time.Sleep(time.Second / 20)
-	}
-
-	for scanner.Scan() {
-		value, err := strconv.ParseFloat(scanner.Text(), 64)
+		err = an.AnomalyAnalise(value, StdAnomalyCoefficient)
 		if err != nil {
 			fmt.Println("Error parsing input:", err)
 			continue
 		}
-		err = an.AnomalyAnalise(value)
-
+		time.Sleep(time.Second / 50)
 	}
-
 	if err := scanner.Err(); err != nil {
 		fmt.Println("Error reading from stdin:", err)
 		return

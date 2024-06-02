@@ -5,27 +5,61 @@ import (
 	"math"
 )
 
-func MeanStdDevCalc(distribution []float64) (mean float64, stdDev float64, err error) {
-	if (len(distribution)) == 0 {
-		log.Println("no stream found")
-		return
+var (
+	Mean         float64
+	StdDev       float64
+	Count        int
+	Distribution []float64
+)
+
+const (
+	MaxDistribution = 95
+	PrintCheckpoint = 10
+)
+
+func AnomalyAnalise(value float64, STDAnomalyCoefficient float64) (err error) {
+	if Count >= MaxDistribution {
+		Count++
+		IsAnomaly(value, STDAnomalyCoefficient)
+	} else if Count < MaxDistribution-1 {
+		Distribution = append(Distribution, value)
+		Count++
+	} else {
+		Distribution = append(Distribution, value)
+		Count++
+		meanStdDevCalc()
 	}
-	// mean
-	sum := 0.0
-	for _, value := range distribution {
-		sum += value
-	}
-	mean = sum / float64(len(distribution))
-	// stdDev
-	variance := 0.0
-	for _, value := range distribution {
-		variance += math.Pow(value-mean, 2)
-	}
-	stdDev = math.Sqrt(variance / float64(len(distribution)))
+
 	return
 }
 
-func AnomalyAnalise(mean float64, stdDev float64, value float64) (err error) {
-
+func meanStdDevCalc() (err error) {
+	log.Println("MeanStdDev. Count: ", Count)
+	if len(Distribution) == 0 {
+		log.Println("no stream found")
+	}
+	// mean
+	sum := 0.0
+	for _, value := range Distribution {
+		sum += value
+	}
+	Mean = sum / float64(len(Distribution))
+	// stdDev
+	variance := 0.0
+	for _, value := range Distribution {
+		variance += math.Pow(value-Mean, 2)
+	}
+	StdDev = math.Sqrt(variance / float64(len(Distribution)))
+	Count = len(Distribution)
+	if Count%PrintCheckpoint == 0 {
+		log.Println(len(Distribution), "value: ", Distribution[len(Distribution)])
+		log.Println("Mean: ", Mean, "STDdev: ", StdDev)
+	}
 	return
+}
+
+func IsAnomaly(value float64, coeff float64) bool {
+	log.Println("Is Anomaly. Count: ", Count)
+	stdDevMultiplier := coeff * StdDev
+	return math.Abs(value-Mean) > stdDevMultiplier
 }

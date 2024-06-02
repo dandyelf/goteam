@@ -6,11 +6,7 @@ import (
 )
 
 func ExampleAnomalyAnalyser() {
-	fmt.Println(an.MeanStdDevCalc([]float64{}))
-	fmt.Println(an.MeanStdDevCalc([]float64{1}))
-	fmt.Println(an.MeanStdDevCalc([]float64{1, 2}))
-	fmt.Println(an.MeanStdDevCalc([]float64{1, 2, 1}))
-	fmt.Println(an.MeanStdDevCalc([]float64{1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1}))
+	fmt.Println(an.AnomalyAnalise(1, 2))
 
 	// Output: 0 0 <nil>
 	// 1 0 <nil>
