@@ -17,7 +17,7 @@ var (
 )
 
 func init() {
-	flag.Float64Var(&StdAnomalyCoefficient, "k", 0.20, "STD Anomaly coefficient")
+	flag.Float64Var(&StdAnomalyCoefficient, "k", 0.0000005, "STD Anomaly coefficient")
 	flag.Parse()
 }
 

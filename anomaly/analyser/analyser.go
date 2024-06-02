@@ -20,7 +20,10 @@ const (
 func AnomalyAnalise(value float64, STDAnomalyCoefficient float64) (err error) {
 	if Count >= MaxDistribution {
 		Count++
-		IsAnomaly(value, STDAnomalyCoefficient)
+		if IsAnomaly(value, STDAnomalyCoefficient) {
+			log.Println("Anomaly found: ", value, "Count: ", Count)
+		}
+
 	} else if Count < MaxDistribution-1 {
 		Distribution = append(Distribution, value)
 		Count++
@@ -59,7 +62,6 @@ func meanStdDevCalc() (err error) {
 }
 
 func IsAnomaly(value float64, coeff float64) bool {
-	log.Println("Is Anomaly. Count: ", Count)
 	stdDevMultiplier := coeff * StdDev
 	return math.Abs(value-Mean) > stdDevMultiplier
 }
