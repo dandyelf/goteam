@@ -6,6 +6,15 @@ import (
 )
 
 func ExampleAnomalyAnalyser() {
-	fmt.Println(an.AnomalyAnalyser([]float64{1, 12, 5, 23, 34, 35453, 345, 345, 34, 2}))
-	// Output: 3625.4 10610.000105560792 <nil>
+	fmt.Println(an.MeanStdDevCalc([]float64{}))
+	fmt.Println(an.MeanStdDevCalc([]float64{1}))
+	fmt.Println(an.MeanStdDevCalc([]float64{1, 2}))
+	fmt.Println(an.MeanStdDevCalc([]float64{1, 2, 1}))
+	fmt.Println(an.MeanStdDevCalc([]float64{1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1}))
+
+	// Output: 0 0 <nil>
+	// 1 0 <nil>
+	// 1.5 0.5 <nil>
+	// 1.3333333333333333 0.4714045207910317 <nil>
+	// 1.4545454545454546 0.49792959773196915 <nil>
 }

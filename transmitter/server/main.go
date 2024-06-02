@@ -44,7 +44,7 @@ func (s reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServ
 			log.Println("stream stop")
 			return err
 		}
-		// time.Sleep(time.Second / 50)
+		time.Sleep(time.Second / 50)
 	}
 	return nil
 }
