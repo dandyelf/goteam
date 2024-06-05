@@ -6,7 +6,8 @@ import (
 )
 
 func ExampleAnomalyAnalyser() {
-	fmt.Println(an.AnomalyAnalise(1, 2))
+	data := []float64{1.1, 2.1}
+	fmt.Println(an.AnomalyAnalise(1, 0.3))
 
 	// Output: 0 0 <nil>
 	// 1 0 <nil>
