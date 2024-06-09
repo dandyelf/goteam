@@ -20,7 +20,7 @@ import (
 func main() {
 
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("Enter text: ")
+	fmt.Print("Enter num of values: ")
 	text, _ := reader.ReadString('\n')
 
 	conn, err := grpc.NewClient(":3333", grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -47,11 +47,12 @@ func main() {
 			}
 			log.Println(err)
 		}
-		fmt.Println(g.SessionId, g.Frequency, ConvertToUTC(g.GetTimestamp()))
+		fmt.Println(g.GetSessionId(), g.GetFrequency(), ConvertToUTC(g.GetTimestamp()))
 	}
 }
 
 func ConvertToUTC(ts *timestamp.Timestamp) time.Time {
-	t := time.Unix(ts.GetSeconds(), int64(ts.GetNanos())).UTC()
+	loc, _ := time.LoadLocation("Europe/Moscow")
+	t := time.Unix(ts.GetSeconds(), int64(ts.GetNanos())).In(loc)
 	return t
 }

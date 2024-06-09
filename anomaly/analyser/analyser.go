@@ -37,7 +37,6 @@ func AnomalyAnalise(value float64, STDAnomalyCoefficient float64) (err error) {
 }
 
 func meanStdDevCalc() (err error) {
-	log.Println("MeanStdDev. Count: ", Count)
 	if len(Distribution) == 0 {
 		log.Println("no stream found")
 	}

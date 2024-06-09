@@ -25,14 +25,16 @@ const (
 
 type reportServer struct {
 	pro.UnimplementedRepServServer
+	lilPamp int
 }
 
 func (s reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServer) error {
 	const StreamMaxVals = 100000000000000000
+	var StreamClocker = 100
 	uuidStr := uuid.NewString()
 	mean, stdDev := MeanStdDevGenerator()
 	log.Println(uuidStr, mean, stdDev, ConvertToUTC(timestamppb.Now()))
-	for i := 0; i < StreamMaxVals; i++ {
+	for i := 0; i < StreamMaxVals; {
 		frequency := Frequency(mean, stdDev)
 		timestamp := timestamppb.Now()
 		response := pro.Point{
@@ -44,7 +46,12 @@ func (s reportServer) GetData(empty *empty.Empty, stream pro.RepServ_GetDataServ
 			log.Println("stream stop")
 			return err
 		}
-		time.Sleep(time.Second / 50)
+		StreamClocker--
+		if StreamClocker == 0 {
+			StreamClocker = 100
+			log.Println("stream 100+")
+		}
+		// time.Sleep(time.Second / 50)
 	}
 	return nil
 }
@@ -56,12 +63,18 @@ func main() {
 	}
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
-	pro.RegisterRepServServer(grpcServer, reportServer{})
+	pro.RegisterRepServServer(grpcServer, newServer())
 	fmt.Println("Server start")
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("connecting")
+}
+
+func newServer() reportServer {
+	var s reportServer
+	s.lilPamp = 10
+	return s
 }
 
 func MeanStdDevGenerator() (mean float64, stdDev float64) {
